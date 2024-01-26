@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Text, StyleSheet, View, Pressable, TextInput, Alert } from "react-native";
+import { Text, StyleSheet, View, Pressable, TextInput, Alert, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { FontFamily, FontSize, Border, Color } from "../GlobalStyles";
 import { auth } from '../firebase'
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const LoginPage = () => {
   const navigation = useNavigation();
@@ -12,6 +13,10 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const handleForgotPasswordPress = () => {
+    // นำทางไปยังหน้า ForgotPassword
+    navigation.navigate('ForgotPassword'); // แทน 'ForgotPassword' ด้วยชื่อ Stack.Screen หรือชื่อหน้าที่คุณต้องการนำทางไป
+  };
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
@@ -34,15 +39,28 @@ const LoginPage = () => {
   //   }
   // };
 
-  const handleLogin = () => {
-    auth
-      .signInWithEmailAndPassword(email, password)
-      .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Logged in with:', user.email);
+  // const handleLogin = () => {
+  //   auth
+  //     .signInWithEmailAndPassword(email, password)
+  //     .then(userCredentials => {
+  //       const user = userCredentials.user;
+  //       console.log('Logged in with:', user.email);
+  //     })
+  //     .catch(error => alert(error.message))
+  // }
+
+  const handleLogin = async () => {
+
+    await signInWithEmailAndPassword(auth, email.trim(), password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        setLoading(false);
+        alert("Login successful :)");
       })
-      .catch(error => alert(error.message))
-  }
+      .catch((err) => {
+        alert(err.message);
+      });
+  };
 
   return (
     <View style={styles.loginPage}>
@@ -112,9 +130,9 @@ const LoginPage = () => {
           </View>
         </View>
         <View style={[styles.forgetPassword, styles.registerTextLayout]}>
-          <Text style={styles.text6Clr}>
-            ลืมรหัสผ่านหรือไม่?
-          </Text>
+          <TouchableOpacity style={styles.text6Clr} onPress={handleForgotPasswordPress}>
+            <Text>ลืมรหัสผ่านหรือไม่?</Text>
+          </TouchableOpacity>
         </View>
       </View>
       {/* ปุ่มเข้าสู่ระบบ */}
@@ -399,7 +417,7 @@ const styles = StyleSheet.create({
   },
   forgetPassword: {
     top: 128,
-    left: 111,
+    left: 105,
     width: 120,
   },
   labelBgChild: {

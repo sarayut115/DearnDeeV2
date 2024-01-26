@@ -6,6 +6,8 @@ import { useNavigation } from "@react-navigation/native";
 import { FontFamily, Color, FontSize, Border } from "../GlobalStyles";
 import { useState, useEffect } from "react"; // เพิ่ม import นี้
 import { auth, db } from '../firebase';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 
 const RegisterPage1 = () => {
@@ -17,6 +19,8 @@ const RegisterPage1 = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
@@ -27,15 +31,33 @@ const RegisterPage1 = () => {
     return unsubscribe
   }, [])
 
-  const handleSignUp = () => {
-    auth
-      .createUserWithEmailAndPassword(email, password)
-      .then(userCredentials => {
-        const user = userCredentials.user;
-        console.log('Registered with:', user.email);
+  // const handleSignUp = () => {
+  //   auth
+  //     .createUserWithEmailAndPassword(email, password)
+  //     .then(userCredentials => {
+  //       const user = userCredentials.user;
+  //       console.log('Registered with:', user.email);
+  //     })
+  //     .catch(error => alert(error.message))
+  // }
+  const handleSignUp = async () => {
+    setLoading(true);
+    await createUserWithEmailAndPassword(auth, email.trim(), password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        setLoading(false);
+        setDoc(doc(db, "users", user.uid), {
+          Name: firstName,
+          Email: email,
+          CreatedAt: new Date().toUTCString(),
+        });
       })
-      .catch(error => alert(error.message))
-  }
+      .then(() => alert("Account created successfully 🎉"))
+      .catch((err) => {
+        alert(err.message);
+      });
+  };
+
 
 
   
@@ -167,7 +189,7 @@ const RegisterPage1 = () => {
           locations={[0, 1]}
           colors={["#92a3fd", "#9dceff"]}
         />
-        <Text style={[styles.register, styles.textTypo]}>ลงทะเบียน</Text>
+        <Text style={[styles.register, styles.textTypo]}>{loading ? "กำลังลงทะเบียน.." : "ลงทะเบียน"}</Text>
 
       </Pressable>
       <View style={styles.or}>
@@ -210,11 +232,40 @@ const RegisterPage1 = () => {
           </Text>
         </Pressable>
       </View>
+      <Pressable
+        style={styles.arrowLeft}
+        onPress={() => navigation.navigate("LoginPage")}
+      >
+        <Image
+          style={[styles.icon, styles.iconlylightLayout]}
+          contentFit="cover"
+          source={require("../assets/arrowleft.png")}
+        />
+      </Pressable>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  arrowLeft: {
+    left: "9.87%",
+    top: "5.42%",
+    right: "85.33%",
+    bottom: "92.61%",
+    width: "4.8%",
+    height: "1.97%",
+    position: "absolute",
+  },
+  icon: {
+    width: "100%",
+    maxWidth: "100%",
+  },
+  iconlylightLayout: {
+    maxWidth: "100%",
+    height: "100%",
+    maxHeight: "100%",
+    overflow: "hidden",
+  },
   text6: {
     top: 33,
     fontSize: FontSize.titleH4Bold_size - 5,

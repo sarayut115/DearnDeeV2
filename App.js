@@ -11,6 +11,8 @@ import Onboarding from "./screens/Onboarding";
 import Onboarding1 from "./screens/Onboarding1";
 import Onboarding2 from "./screens/Onboarding2";
 import Onboarding3 from "./screens/Onboarding3";
+import ForgotPassword from "./screens/ForgotPassword";
+import Home from "./screens/Home";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, Text, Pressable, TouchableOpacity } from "react-native";
@@ -40,6 +42,16 @@ const App = () => {
               name="WelcomeScreen"
               // component={WelcomeScreen}
               component={LoginPage}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="ForgotPassword"
+              component={ForgotPassword}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Home"
+              component={Home}
               options={{ headerShown: false }}
             />
             <Stack.Screen

@@ -10,12 +10,13 @@ const SuccessRegistration = () => {
   const navigation = useNavigation();
 
   const handleSignOut = () => {
-    auth
-      .signOut()
-      .then(() => {
-        navigation.replace("LoginPage")
-      })
-      .catch(error => alert(error.message))
+    // auth
+    //   .signOut()
+    //   .then(() => {
+    //     navigation.replace("LoginPage")
+    //   })
+    //   .catch(error => alert(error.message))
+    navigation.replace("Home")
   }
 
   return (
